@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Teste a IA da Zentera Virtua">
+  <defs>
+    <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0.3">
+      <stop offset="0%" stop-color="#363271"/>
+      <stop offset="25%" stop-color="#30457A"/>
+      <stop offset="55%" stop-color="#377296"/>
+      <stop offset="78%" stop-color="#469CB5"/>
+      <stop offset="100%" stop-color="#4FB2C6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#050609"/>
+  <rect x="96" y="150" width="6" height="300" rx="3" fill="url(#bar)"/>
+  <text x="140" y="196" font-family="Inter, Segoe UI, sans-serif" font-size="22" letter-spacing="3" fill="#4FB2C6">DEMONSTRACAO INTERATIVA</text>
+  <text x="140" y="290" font-family="Inter, Segoe UI, sans-serif" font-size="66" font-weight="600" fill="#F5F7FA">Converse com a IA da</text>
+  <text x="140" y="366" font-family="Inter, Segoe UI, sans-serif" font-size="66" font-weight="600" fill="#F5F7FA">Zentera Virtua.</text>
+  <text x="140" y="432" font-family="Inter, Segoe UI, sans-serif" font-size="30" fill="#A9B2BE">Teste agora. Sem apresentacao. Sem roteiro.</text>
+  <rect x="96" y="540" width="1008" height="1" fill="#141B24"/>
+  <text x="96" y="580" font-family="Inter, Segoe UI, sans-serif" font-size="24" fill="#727D8A">teste.zenteravirtua.com.br</text>
+</svg>
