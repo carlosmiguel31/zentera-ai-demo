@@ -2,63 +2,99 @@ import { BRAND } from '#/config/site'
 import { cn } from '#/lib/utils'
 
 /**
- * LOGO DA ZENTERA VIRTUA
+ * LOGOS OFICIAIS DA ZENTERA VIRTUA
  *
- * Nenhum arquivo oficial de logo foi fornecido, entao a marca aparece como
- * texto ("Zentera Virtua"), conforme combinado. A logo NAO foi redesenhada,
- * recolorida nem recriada em CSS.
+ * Os arquivos ficam em `public/brand/` e sao usados como fornecidos: nao foram
+ * redesenhados, recoloridos nem convertidos para SVG.
  *
- * PARA USAR O ARQUIVO OFICIAL — basta UMA constante:
- *   1. copie o arquivo para `public/` (nome sugerido:
- *      `public/zentera-virtua-logo.png`; SVG ou WebP tambem servem);
- *   2. troque `LOGO_SRC` abaixo de `null` para `'/zentera-virtua-logo.png'`;
- *   3. se a proporcao pedir, ajuste `LOGO_HEIGHT_CLASS`.
+ * - `zentera-virtua-logo.jpeg`   → logo completa (simbolo + "Zentera Virtua"),
+ *                                  usada no Header, no Footer e em areas
+ *                                  institucionais.
+ * - `zentera-virtua-symbol.jpeg` → apenas o simbolo, usado como avatar da IA,
+ *                                  no header do chat e em elementos pequenos.
  *
- * Nada mais muda: o componente troca o texto pela imagem sozinho, no header e
- * no footer, e o `alt` ja e o nome da marca.
+ * Como os JPEGs tem fundo claro, os dois componentes abaixo exibem a imagem
+ * sobre uma pequena placa clara (`zen-brand-plate`). No tema claro ela se
+ * funde com a pagina; no tema escuro vira um cartao discreto. Nenhum filtro
+ * CSS e aplicado sobre a imagem.
  */
-const LOGO_SRC: string | null = null
-const LOGO_HEIGHT_CLASS = 'h-7 w-auto'
+export const LOGO_SRC = '/brand/zentera-virtua-logo.jpeg'
+export const SYMBOL_SRC = '/brand/zentera-virtua-symbol.jpeg'
 
-export function Logo({ className }: { className?: string }) {
-  if (LOGO_SRC) {
-    return (
-      <img
-        src={LOGO_SRC}
-        alt={BRAND.name}
-        className={cn(LOGO_HEIGHT_CLASS, className)}
-        decoding="async"
-      />
-    )
-  }
+/** Proporcao real do arquivo da logo completa (723 x 239). */
+const LOGO_ASPECT = '723 / 239'
 
+interface LogoProps {
+  className?: string
+  /** Altura da imagem. O container cresce junto, mantendo a proporcao. */
+  size?: 'sm' | 'md'
+}
+
+/**
+ * Logo completa sobre placa clara.
+ *
+ * `alt` recebe o nome da marca; quem envolve o componente em um link deve
+ * fornecer o proprio `aria-label` se quiser um texto diferente.
+ */
+export function Logo({ className, size = 'sm' }: LogoProps) {
   return (
     <span
       className={cn(
-        'font-display text-[1.0625rem] font-semibold tracking-[-0.02em] text-fg',
+        'zen-brand-plate inline-flex shrink-0 items-center overflow-hidden rounded-xl',
+        size === 'sm' ? 'h-10 px-2.5 py-1' : 'h-12 px-3 py-1.5',
         className,
       )}
     >
-      {BRAND.name}
+      <img
+        src={LOGO_SRC}
+        alt={BRAND.name}
+        width={723}
+        height={239}
+        decoding="async"
+        className="block h-full w-auto select-none"
+        style={{ aspectRatio: LOGO_ASPECT }}
+        draggable={false}
+      />
     </span>
   )
 }
 
+interface BrandMarkProps {
+  className?: string
+  /**
+   * `true` (padrao) quando o simbolo e puramente decorativo — por exemplo, ao
+   * lado do texto "Zentera IA". Use `false` para dar um `alt` real.
+   */
+  decorative?: boolean
+}
+
 /**
- * Marca compacta usada como avatar do agente no chat.
+ * Simbolo oficial, usado como avatar da IA e no header do chat.
  *
- * Proposital: apenas o gradiente da marca, sem letra, sem simbolo e sem
- * qualquer desenho que possa ser confundido com a logo oficial.
+ * O tamanho padrao e `size-9`; passe `className` com outro `size-*` quando
+ * precisar (as bolhas usam `size-8`).
  */
-export function BrandMark({ className }: { className?: string }) {
+export function BrandMark({ className, decorative = true }: BrandMarkProps) {
   return (
     <span
-      aria-hidden="true"
+      aria-hidden={decorative ? 'true' : undefined}
       className={cn(
-        'zen-gradient inline-block size-9 shrink-0 rounded-full',
-        'ring-1 ring-white/25 ring-inset',
+        // Fundo branco puro: e exatamente o fundo do JPEG do simbolo, entao a
+        // imagem se funde com a placa em vez de mostrar um quadrado interno.
+        'inline-flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-brand-plate-border bg-white',
         className,
       )}
-    />
+    >
+      <img
+        src={SYMBOL_SRC}
+        alt={decorative ? '' : `Símbolo da ${BRAND.name}`}
+        width={456}
+        height={456}
+        decoding="async"
+        loading="lazy"
+        className="block size-full scale-[0.78] object-contain select-none"
+        draggable={false}
+      />
+    </span>
   )
 }

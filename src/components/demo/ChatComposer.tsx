@@ -67,11 +67,11 @@ export function ChatComposer({
   }
 
   return (
-    <div className="border-t border-line bg-surface-2/60 px-3 py-3 sm:px-4">
+    <div className="border-t border-line bg-surface-2/80 px-3 py-3 backdrop-blur-sm sm:px-4">
       <div
         className={cn(
-          'flex items-end gap-2 rounded-2xl border bg-surface p-2 transition-colors',
-          'focus-within:border-zen-400/60',
+          'flex items-end gap-2 rounded-2xl border bg-surface p-1.5 shadow-[var(--shadow-card)] transition-[border-color,box-shadow] duration-200 sm:p-2',
+          'focus-within:border-zen-400/60 focus-within:shadow-[0_0_0_4px_rgb(70_156_181/0.12)]',
           tooLong ? 'border-red-500/50' : 'border-line',
         )}
       >
@@ -104,9 +104,9 @@ export function ChatComposer({
           disabled={!canSend}
           aria-label={isSending ? 'Enviando mensagem' : 'Enviar mensagem'}
           className={cn(
-            'inline-flex size-11 shrink-0 items-center justify-center rounded-xl transition-all sm:size-10',
+            'inline-flex size-11 shrink-0 items-center justify-center rounded-xl transition-[background-color,color,box-shadow,transform] duration-200 sm:size-10',
             canSend
-              ? 'zen-gradient text-white shadow-[0_6px_20px_-8px_rgb(71_156_181/0.9)]'
+              ? 'zen-gradient text-white shadow-[0_8px_22px_-10px_rgb(55_114_150/0.9)] hover:-translate-y-px'
               : 'cursor-not-allowed bg-surface-3 text-fg-subtle',
           )}
         >
@@ -121,9 +121,16 @@ export function ChatComposer({
         </button>
       </div>
 
-      <div className="mt-1.5 flex items-center justify-between gap-3 px-1">
+      <div className="mt-2 flex items-center justify-between gap-3 px-1">
         <p className="hidden text-[0.6875rem] text-fg-subtle sm:block">
-          Enter envia · Shift + Enter quebra linha
+          <kbd className="rounded border border-line bg-surface px-1 py-px font-sans text-[0.625rem] text-fg-muted">
+            Enter
+          </kbd>{' '}
+          envia ·{' '}
+          <kbd className="rounded border border-line bg-surface px-1 py-px font-sans text-[0.625rem] text-fg-muted">
+            Shift + Enter
+          </kbd>{' '}
+          quebra linha
         </p>
 
         {(nearLimit || tooLong) && (

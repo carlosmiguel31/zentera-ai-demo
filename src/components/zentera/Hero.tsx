@@ -6,14 +6,24 @@ import { usePrefersReducedMotion } from '#/lib/utils'
 
 /**
  * Hero deliberadamente curto: o chat precisa aparecer quase junto na primeira
- * tela. O unico ornamento e a regua vertical com o gradiente da marca, que
- * marca onde a Zentera "fala" — nada de titulo gigante ocupando a viewport.
+ * tela. Os unicos ornamentos sao a regua vertical com o gradiente da marca e
+ * um brilho suave ao fundo, no mesmo tom da landing institucional — nada de
+ * ilustracao ou titulo gigante ocupando a viewport.
  */
 export function Hero() {
   const reduced = usePrefersReducedMotion()
 
   return (
-    <section id="inicio" className="px-4 pt-28 pb-12 sm:px-6 sm:pt-32 sm:pb-16">
+    <section
+      id="inicio"
+      className="relative overflow-hidden px-4 pt-32 pb-12 sm:px-6 sm:pt-36 sm:pb-16"
+    >
+      {/* Brilho de fundo: discreto, sem particulas */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[32rem] bg-[radial-gradient(60%_55%_at_50%_0%,rgb(70_156_181/0.16),transparent_70%)] dark:bg-[radial-gradient(60%_55%_at_50%_0%,rgb(70_156_181/0.14),transparent_70%)]"
+      />
+
       <motion.div
         initial={reduced ? false : { opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
@@ -26,11 +36,15 @@ export function Hero() {
             className="zen-gradient absolute top-1 left-0 h-[calc(100%-0.5rem)] w-[3px] rounded-full"
           />
 
-          <p className="text-[0.75rem] font-medium tracking-[0.14em] text-zen-500 dark:text-zen-300">
+          <p className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/70 px-3 py-1 text-[0.6875rem] font-semibold tracking-[0.14em] text-zen-600 backdrop-blur-sm dark:text-zen-300">
+            <span
+              aria-hidden="true"
+              className="size-1.5 rounded-full bg-zen-400"
+            />
             DEMONSTRAÇÃO INTERATIVA
           </p>
 
-          <h1 className="mt-4 text-[2rem] leading-[1.1] sm:text-[2.75rem] lg:text-[3.25rem]">
+          <h1 className="mt-5 text-[2rem] leading-[1.08] sm:text-[2.75rem] lg:text-[3.375rem]">
             Converse com a IA da Zentera Virtua.
           </h1>
 
@@ -44,18 +58,12 @@ export function Hero() {
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <a
-              href={NAV_ANCHORS.demo}
-              className="zen-gradient inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-6 text-[0.9375rem] font-semibold text-white shadow-[0_12px_32px_-16px_rgb(71_156_181/0.9)]"
-            >
+            <a href={NAV_ANCHORS.demo} className="zen-btn zen-btn-primary">
               Testar a IA
               <ArrowDown className="size-4" aria-hidden="true" />
             </a>
 
-            <a
-              href={MAIN_SITE_URL}
-              className="inline-flex min-h-12 items-center justify-center rounded-xl border border-line px-6 text-[0.9375rem] font-medium text-fg-muted transition-colors hover:border-line-strong hover:text-fg"
-            >
+            <a href={MAIN_SITE_URL} className="zen-btn zen-btn-secondary">
               Conhecer a Zentera Virtua
             </a>
           </div>

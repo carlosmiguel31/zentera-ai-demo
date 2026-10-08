@@ -23,17 +23,23 @@ export function ChatHeader({
   onConfirmNew,
 }: ChatHeaderProps) {
   return (
-    <header className="flex items-center gap-3 border-b border-line bg-surface-2/70 px-4 py-3 sm:px-5">
-      <BrandMark />
+    <header className="relative flex items-center gap-3 border-b border-line bg-surface-2/80 px-4 py-3 backdrop-blur-sm sm:px-5 sm:py-3.5">
+      {/* Filete do gradiente da marca no topo do chat */}
+      <span
+        aria-hidden="true"
+        className="zen-gradient absolute inset-x-0 top-0 h-[2px] opacity-90"
+      />
+
+      <BrandMark className="size-10" />
 
       <div className="min-w-0 flex-1">
-        <p className="truncate font-display text-[0.9375rem] font-semibold text-fg">
+        <p className="truncate font-display text-[0.9375rem] font-semibold tracking-[-0.01em] text-fg">
           {BRAND.agentName}
         </p>
         <p className="flex items-center gap-1.5 text-[0.75rem] text-fg-subtle">
           <span
             aria-hidden="true"
-            className="size-1.5 rounded-full bg-zen-300 shadow-[0_0_0_3px_rgb(79_178_198/0.18)]"
+            className="size-1.5 rounded-full bg-zen-300 shadow-[0_0_0_3px_rgb(79_178_198/0.2)]"
           />
           Online
         </p>
@@ -51,7 +57,7 @@ export function ChatHeader({
         onClick={onRequestNew}
         disabled={isSending}
         aria-label="Iniciar uma nova conversa"
-        className="inline-flex h-9 items-center gap-2 rounded-full border border-line px-3 text-[0.8125rem] font-medium text-fg-muted transition-colors hover:border-line-strong hover:text-fg disabled:pointer-events-none disabled:opacity-50"
+        className="inline-flex h-9 items-center gap-2 rounded-full border border-line bg-surface px-3 text-[0.8125rem] font-medium text-fg-muted transition-colors hover:border-line-strong hover:text-fg disabled:pointer-events-none disabled:opacity-50"
       >
         <RotateCcw className="size-4" aria-hidden="true" />
         <span className="hidden sm:inline">Nova conversa</span>
@@ -60,7 +66,7 @@ export function ChatHeader({
       <Dialog.Root open={confirmOpen} onOpenChange={onConfirmOpenChange}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/55 backdrop-blur-[2px]" />
-          <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[min(26rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-line bg-surface p-6 shadow-[var(--shadow-panel)]">
+          <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[min(26rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-(--radius-panel) border border-line bg-surface p-6 shadow-[var(--shadow-panel)]">
             <Dialog.Title className="font-display text-lg font-semibold text-fg">
               Começar uma nova conversa?
             </Dialog.Title>
@@ -73,7 +79,7 @@ export function ChatHeader({
               <Dialog.Close asChild>
                 <button
                   type="button"
-                  className="h-11 rounded-xl border border-line px-5 text-[0.9375rem] font-medium text-fg-muted transition-colors hover:border-line-strong hover:text-fg sm:h-10"
+                  className="zen-btn zen-btn-secondary min-h-11 px-5 sm:min-h-10"
                 >
                   Continuar conversando
                 </button>
@@ -82,7 +88,7 @@ export function ChatHeader({
               <button
                 type="button"
                 onClick={onConfirmNew}
-                className="zen-gradient h-11 rounded-xl px-5 text-[0.9375rem] font-semibold text-white sm:h-10"
+                className="zen-btn zen-btn-primary min-h-11 px-5 sm:min-h-10"
               >
                 Apagar e recomeçar
               </button>

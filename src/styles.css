@@ -22,6 +22,11 @@
   --color-zen-500: #3d85a4;
   --color-zen-400: #469cb5;
   --color-zen-300: #4fb2c6;
+
+  /* Raios compartilhados com a landing institucional */
+  --radius-panel: 1.5rem;
+  --radius-card: 1rem;
+  --radius-control: 0.875rem;
 }
 
 /* -------------------------------------------------------------------------
@@ -30,17 +35,22 @@
 :root {
   --bg: #f4f7fa;
   --bg-deep: #e9eff6;
-  --surface: #ffffff;
-  --surface-2: #f7fafd;
-  --surface-3: #eef3f9;
-  --border: rgb(48 69 122 / 0.14);
-  --border-strong: rgb(48 69 122 / 0.26);
+  --surface: #fbfcfe;
+  --surface-2: #f5f8fb;
+  --surface-3: #eaf0f6;
+  --border: rgb(48 69 122 / 0.12);
+  --border-strong: rgb(48 69 122 / 0.24);
   --fg: #111827;
   --fg-muted: #4b5766;
   --fg-subtle: #74808f;
   --bubble-ai: #ffffff;
+  /* Placa clara onde os logos oficiais (JPEG com fundo claro) sao exibidos */
+  --brand-plate: #f7f7f7;
+  --brand-plate-border: rgb(48 69 122 / 0.1);
   --shadow-panel:
     0 1px 2px rgb(29 32 83 / 0.04), 0 24px 60px -32px rgb(29 32 83 / 0.35);
+  --shadow-card: 0 1px 2px rgb(29 32 83 / 0.04);
+  --shadow-cta: 0 14px 34px -16px rgb(55 114 150 / 0.75);
   color-scheme: light;
 }
 
@@ -56,8 +66,12 @@
   --fg-muted: #a9b2be;
   --fg-subtle: #727d8a;
   --bubble-ai: #0e131a;
+  --brand-plate: rgb(255 255 255 / 0.96);
+  --brand-plate-border: rgb(255 255 255 / 0.08);
   --shadow-panel:
     0 1px 0 rgb(255 255 255 / 0.04), 0 40px 90px -40px rgb(0 0 0 / 0.9);
+  --shadow-card: 0 1px 0 rgb(255 255 255 / 0.03);
+  --shadow-cta: 0 16px 38px -16px rgb(79 178 198 / 0.55);
   color-scheme: dark;
 }
 
@@ -73,6 +87,8 @@
   --color-fg: var(--fg);
   --color-fg-muted: var(--fg-muted);
   --color-fg-subtle: var(--fg-subtle);
+  --color-brand-plate: var(--brand-plate);
+  --color-brand-plate-border: var(--brand-plate-border);
 }
 
 /* -------------------------------------------------------------------------
@@ -110,10 +126,15 @@
     text-wrap: balance;
   }
 
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
   :focus-visible {
-    outline: 2px solid var(--color-zen-300);
+    outline: 2px solid var(--color-zen-400);
     outline-offset: 2px;
-    border-radius: 4px;
+    border-radius: 6px;
   }
 
   ::selection {
@@ -133,6 +154,16 @@
     #377296 55%,
     #469cb5 78%,
     #4fb2c6 100%
+  );
+}
+
+/* Versao mais contida do gradiente, para bolhas do visitante */
+@utility zen-gradient-soft {
+  background-image: linear-gradient(
+    120deg,
+    #30457a 0%,
+    #325c86 45%,
+    #377296 100%
   );
 }
 
@@ -161,6 +192,80 @@
   );
 }
 
+/*
+ * Placa clara para os logos oficiais.
+ *
+ * Os JPEGs tem fundo claro; em vez de tentar remover o fundo via CSS (o que
+ * descaracterizaria a marca), o logo e sempre exibido sobre uma pequena
+ * superficie clara, que no tema escuro aparece como um "cartao" discreto.
+ */
+@utility zen-brand-plate {
+  background-color: var(--brand-plate);
+  border: 1px solid var(--brand-plate-border);
+}
+
+/* Botoes compartilhados com a landing institucional */
+@utility zen-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding-inline: 1.5rem;
+  border-radius: var(--radius-control);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    background-color 180ms ease;
+}
+
+@utility zen-btn-primary {
+  color: #fff;
+  background-image: linear-gradient(
+    110deg,
+    #363271 0%,
+    #30457a 25%,
+    #377296 55%,
+    #469cb5 78%,
+    #4fb2c6 100%
+  );
+  background-size: 130% 100%;
+  background-position: 0% 0%;
+  box-shadow: var(--shadow-cta);
+  transition:
+    background-position 320ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.zen-btn-primary:hover {
+  background-position: 100% 0%;
+  transform: translateY(-1px);
+}
+
+.zen-btn-primary:active {
+  transform: translateY(0);
+}
+
+@utility zen-btn-secondary {
+  color: var(--fg-muted);
+  background-color: transparent;
+  border: 1px solid var(--border);
+  font-weight: 500;
+}
+
+.zen-btn-secondary:hover {
+  color: var(--fg);
+  border-color: var(--border-strong);
+  background-color: var(--surface);
+}
+
 /* Barra de rolagem discreta dentro do chat */
 .zen-scroll {
   scrollbar-width: thin;
@@ -177,6 +282,9 @@
   border-radius: 999px;
   border: 3px solid transparent;
   background-clip: content-box;
+}
+.zen-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-zen-400);
 }
 
 /* Regiao viva somente para leitores de tela */

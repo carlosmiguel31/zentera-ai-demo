@@ -538,7 +538,9 @@ os visitantes como um único cliente (`unknown`).
 
 ```text
 public/
-  favicon.svg  og-image.svg  robots.txt  sitemap.xml
+  brand/       zentera-virtua-logo.jpeg  zentera-virtua-symbol.jpeg
+  favicon-32.png  favicon-96.png  apple-touch-icon.png
+  og-image.png  og-image.svg  robots.txt  sitemap.xml
 
 src/
   components/
@@ -557,22 +559,29 @@ src/
 
 ---
 
-## Logo
+## Logo e marca
 
-Nenhum arquivo oficial de logo foi fornecido, então a marca aparece como texto
-(`Zentera Virtua`). A logo **não** foi redesenhada, recolorida nem recriada em
-CSS, e o avatar do agente no chat é apenas o gradiente da marca, sem símbolo.
+Os logos oficiais da Zentera Virtua ficam em `public/brand/` e sao usados
+exatamente como fornecidos — sem redesenho, recoloracao ou conversao para SVG:
 
-Para usar o arquivo oficial, edite `src/components/zentera/Logo.tsx`:
-
-```ts
-const LOGO_SRC: string | null = '/zentera-virtua-logo.png'
+```text
+public/brand/zentera-virtua-logo.jpeg     logo completa (Header, Footer)
+public/brand/zentera-virtua-symbol.jpeg   simbolo (avatar da IA, header do chat)
 ```
 
-Coloque o arquivo em `public/zentera-virtua-logo.png` (SVG ou WebP também
-servem). É a única linha a mudar: o componente troca o texto pela imagem no
-header e no footer sozinho, com o nome da marca no `alt`. Se a proporção pedir,
-ajuste `LOGO_HEIGHT_CLASS` logo abaixo.
+Os dois componentes estao em `src/components/zentera/Logo.tsx`:
+
+- `<Logo />` — logo completa, com `alt="Zentera Virtua"`;
+- `<BrandMark />` — simbolo, decorativo por padrao (`alt=""`, `aria-hidden`).
+
+Como os JPEGs tem fundo claro, as imagens sao sempre exibidas sobre uma pequena
+placa clara (`zen-brand-plate` em `src/styles.css`). No tema escuro essa placa
+aparece como um cartao discreto; nenhum filtro CSS e aplicado sobre a imagem.
+
+Os favicons (`public/favicon-32.png`, `public/favicon-96.png`,
+`public/apple-touch-icon.png`) sao recortes rasterizados do simbolo oficial. O
+`favicon.svg` antigo foi mantido apenas como referencia e nao e mais
+referenciado pelo `<head>`.
 
 ---
 

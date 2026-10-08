@@ -3,13 +3,14 @@ import { Menu, X } from 'lucide-react'
 
 import { Logo } from '#/components/zentera/Logo'
 import { ThemeToggle } from '#/components/zentera/ThemeToggle'
-import { CONTACT_URL, NAV_ANCHORS } from '#/config/site'
+import { CONTACT_URL, MAIN_SITE_URL, NAV_ANCHORS } from '#/config/site'
 import { track } from '#/lib/analytics'
 import { cn } from '#/lib/utils'
 
 const NAV_LINKS = [
-  { label: 'Como testar', href: NAV_ANCHORS.demo },
+  { label: 'Testar IA', href: NAV_ANCHORS.demo },
   { label: 'Capacidades', href: NAV_ANCHORS.capabilities },
+  { label: 'Zentera Virtua', href: MAIN_SITE_URL },
 ] as const
 
 export function Header() {
@@ -36,27 +37,30 @@ export function Header() {
   return (
     <header
       className={cn(
-        'fixed inset-x-0 top-0 z-40 transition-colors duration-300',
+        'fixed inset-x-0 top-0 z-40 transition-[background-color,border-color,box-shadow] duration-300',
         scrolled || menuOpen
-          ? 'border-b border-line bg-bg/85 backdrop-blur-xl'
+          ? 'border-b border-line bg-bg/85 shadow-[0_1px_0_rgb(0_0_0/0.02)] backdrop-blur-xl'
           : 'border-b border-transparent',
       )}
     >
-      <div className="mx-auto flex h-16 max-w-[76rem] items-center gap-4 px-4 sm:px-6">
+      <div className="mx-auto flex h-[4.25rem] max-w-[76rem] items-center gap-3 px-4 sm:gap-4 sm:px-6">
         <a
           href={NAV_ANCHORS.home}
-          className="flex items-center"
+          className="flex shrink-0 items-center rounded-xl"
           aria-label="Zentera Virtua — início"
         >
           <Logo />
         </a>
 
-        <nav className="ml-auto hidden items-center gap-1 md:flex">
+        <nav
+          aria-label="Navegação principal"
+          className="ml-auto hidden items-center gap-1 md:flex"
+        >
           {NAV_LINKS.map((link) => (
             <a
               key={link.href}
               href={link.href}
-              className="rounded-lg px-3 py-2 text-[0.875rem] text-fg-muted transition-colors hover:text-fg"
+              className="rounded-lg px-3 py-2 text-[0.875rem] font-medium text-fg-muted transition-colors hover:text-fg"
             >
               {link.label}
             </a>
@@ -69,7 +73,7 @@ export function Header() {
           <a
             href={CONTACT_URL}
             onClick={() => track('contact_cta_clicked', { source: 'header' })}
-            className="zen-gradient hidden h-10 items-center rounded-full px-4 text-[0.875rem] font-semibold text-white md:inline-flex"
+            className="zen-btn-primary hidden h-10 items-center rounded-full px-5 text-[0.875rem] font-semibold md:inline-flex"
           >
             Falar com a Zentera
           </a>
@@ -80,7 +84,7 @@ export function Header() {
             aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
             aria-expanded={menuOpen}
             aria-controls="menu-compacto"
-            className="inline-flex size-10 items-center justify-center rounded-full border border-line text-fg-muted md:hidden"
+            className="inline-flex size-10 items-center justify-center rounded-full border border-line text-fg-muted transition-colors hover:border-line-strong hover:text-fg md:hidden"
           >
             {menuOpen ? (
               <X className="size-[18px]" aria-hidden="true" />
@@ -96,13 +100,13 @@ export function Header() {
           id="menu-compacto"
           className="border-t border-line bg-bg px-4 py-4 md:hidden"
         >
-          <nav className="flex flex-col gap-1">
+          <nav aria-label="Navegação principal" className="flex flex-col gap-1">
             {NAV_LINKS.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
-                className="flex min-h-12 items-center rounded-xl px-3 text-[0.9375rem] text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg"
+                className="flex min-h-12 items-center rounded-xl px-3 text-[0.9375rem] font-medium text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg"
               >
                 {link.label}
               </a>
@@ -114,7 +118,7 @@ export function Header() {
                 track('contact_cta_clicked', { source: 'header_mobile' })
                 setMenuOpen(false)
               }}
-              className="zen-gradient mt-2 flex min-h-12 items-center justify-center rounded-xl px-4 text-[0.9375rem] font-semibold text-white"
+              className="zen-btn zen-btn-primary mt-2 w-full"
             >
               Falar com a Zentera
             </a>

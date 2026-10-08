@@ -6,7 +6,7 @@ import { track } from '#/lib/analytics'
 /** Fim da demonstracao: encerra o teste e leva para a conversa comercial. */
 export function DemoLimitNotice() {
   return (
-    <div className="rounded-2xl border border-zen-400/25 bg-surface-2 p-5 text-center">
+    <div className="rounded-(--radius-card) border border-zen-400/30 bg-surface-2 p-5 text-center shadow-[var(--shadow-card)] sm:p-6">
       <p className="font-display text-[1.0625rem] font-semibold text-fg">
         Você chegou ao final desta demonstração.
       </p>
@@ -17,7 +17,7 @@ export function DemoLimitNotice() {
       <a
         href={CONTACT_URL}
         onClick={() => track('contact_cta_clicked', { source: 'demo_limit' })}
-        className="zen-gradient mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl px-5 text-[0.9375rem] font-semibold text-white"
+        className="zen-btn zen-btn-primary mt-5 min-h-11 px-5"
       >
         Falar com a Zentera Virtua
         <ArrowRight className="size-4" aria-hidden="true" />

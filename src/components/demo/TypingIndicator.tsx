@@ -9,10 +9,10 @@ export function TypingIndicator() {
   const reduced = usePrefersReducedMotion()
 
   return (
-    <div className="flex items-end gap-2.5">
-      <BrandMark className="size-8" />
+    <div className="flex items-start gap-2.5">
+      <BrandMark className="mt-1 size-7 sm:size-8" />
 
-      <div className="flex items-center gap-2.5 rounded-2xl rounded-bl-md border border-line bg-bubble-ai px-4 py-3">
+      <div className="flex items-center gap-2.5 rounded-2xl rounded-bl-md border border-line bg-bubble-ai px-4 py-3 shadow-[var(--shadow-card)]">
         <span className="text-[0.8125rem] text-fg-subtle">
           {BRAND.agentName} está digitando
         </span>

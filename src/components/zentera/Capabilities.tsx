@@ -77,27 +77,27 @@ export function Capabilities() {
   return (
     <section
       id="capacidades"
-      className="scroll-mt-24 border-t border-line px-4 py-20 sm:px-6"
+      className="scroll-mt-24 border-t border-line px-4 py-20 sm:px-6 sm:py-24"
     >
       <div className="mx-auto max-w-[62rem]">
-        <p className="text-[0.75rem] font-medium tracking-[0.14em] text-zen-500 dark:text-zen-300">
+        <p className="text-[0.6875rem] font-semibold tracking-[0.14em] text-zen-600 dark:text-zen-300">
           O QUE VOCÊ PODE TESTAR
         </p>
 
-        <h2 className="mt-3 max-w-xl text-[1.625rem] leading-[1.2] sm:text-[2rem]">
+        <h2 className="mt-3 max-w-xl text-[1.625rem] leading-[1.2] sm:text-[2.125rem]">
           Experimente diferentes tipos de atendimento.
         </h2>
 
-        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-9 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4">
           {CAPABILITIES.map((capability) => (
             <button
               key={capability.name}
               type="button"
               onClick={() => handleSelect(capability)}
-              className="group flex items-start gap-3 rounded-xl border border-line bg-surface p-4 text-left transition-colors hover:border-zen-400/45"
+              className="group flex items-start gap-3.5 rounded-(--radius-card) border border-line bg-surface p-4 text-left shadow-[var(--shadow-card)] transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-zen-400/50 hover:shadow-[0_18px_40px_-28px_rgb(55_114_150/0.55)] sm:p-5"
             >
-              <span className="mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-surface-3 text-zen-600 transition-colors group-hover:text-zen-400 dark:text-zen-300">
-                <capability.icon className="size-4" aria-hidden="true" />
+              <span className="mt-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-line bg-surface-3 text-zen-600 transition-colors group-hover:border-zen-400/40 group-hover:text-zen-500 dark:text-zen-300 dark:group-hover:text-zen-300">
+                <capability.icon className="size-[18px]" aria-hidden="true" />
               </span>
 
               <span className="min-w-0">
@@ -112,7 +112,11 @@ export function Capabilities() {
           ))}
         </div>
 
-        <div className="mt-10 max-w-[44rem] border-l-2 border-line pl-5">
+        <div className="relative mt-12 max-w-[44rem] pl-5 sm:pl-6">
+          <span
+            aria-hidden="true"
+            className="zen-gradient absolute top-1 left-0 h-[calc(100%-0.5rem)] w-[3px] rounded-full"
+          />
           <p className="font-display text-[1.0625rem] font-semibold text-fg">
             Você não está navegando por respostas pré-programadas.
           </p>

@@ -56,6 +56,9 @@ export function ChatDemo() {
   }, [reduced])
 
   useEffect(() => {
+    // No estado inicial (boas-vindas + sugestoes) nao ha "ultima mensagem" a
+    // mostrar: rolar para o fim esconderia a saudacao em telas pequenas.
+    if (messages.length === 0 && !isSending && !error) return
     scrollToLatest()
   }, [messages, isSending, error, scrollToLatest])
 
@@ -87,7 +90,7 @@ export function ChatDemo() {
     .find((message) => message.role === 'assistant')
 
   return (
-    <section id="teste" className="scroll-mt-24 px-4 pb-20 sm:px-6">
+    <section id="teste" className="scroll-mt-24 px-4 pb-20 sm:px-6 sm:pb-24">
       <div className="mx-auto max-w-[62rem]">
         <div className="mb-7 max-w-2xl">
           <h2 className="text-[1.75rem] leading-[1.15] sm:text-[2.125rem]">
@@ -100,13 +103,13 @@ export function ChatDemo() {
         </div>
 
         <div className="relative">
-          {/* Halo do gradiente da marca: o unico ornamento da pagina. */}
+          {/* Halo do gradiente da marca: o unico ornamento da secao. */}
           <div
             aria-hidden="true"
-            className="zen-gradient pointer-events-none absolute -inset-x-6 -top-4 bottom-8 rounded-[2.5rem] opacity-[0.16] blur-3xl dark:opacity-[0.22]"
+            className="zen-gradient pointer-events-none absolute -inset-x-4 -top-4 bottom-8 rounded-[2.5rem] opacity-[0.14] blur-3xl sm:-inset-x-8 dark:opacity-[0.2]"
           />
 
-          <div className="relative flex h-[calc(100svh-13rem)] max-h-[680px] min-h-[480px] flex-col overflow-hidden rounded-[1.25rem] border border-line bg-surface shadow-[var(--shadow-panel)] sm:h-[min(70vh,680px)]">
+          <div className="relative flex h-[calc(100svh-13rem)] max-h-[720px] min-h-[500px] flex-col overflow-hidden rounded-(--radius-panel) border border-line bg-surface shadow-[var(--shadow-panel)] sm:h-[min(72vh,720px)]">
             <ChatHeader
               isSending={isSending}
               mode={mode}
@@ -121,7 +124,7 @@ export function ChatDemo() {
 
             <div
               ref={viewportRef}
-              className="zen-scroll flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-3 py-5 sm:px-5"
+              className="zen-scroll flex-1 overflow-x-hidden overflow-y-auto overscroll-contain bg-[radial-gradient(80%_60%_at_50%_0%,rgb(70_156_181/0.05),transparent_70%)] px-3 py-5 sm:px-5 sm:py-6"
             >
               <div className="mx-auto flex max-w-[44rem] flex-col gap-4">
                 {messages.length === 0 && (
@@ -159,7 +162,7 @@ export function ChatDemo() {
                 {error && (
                   <div
                     role="alert"
-                    className="flex flex-wrap items-center gap-3 rounded-xl border border-red-500/25 bg-red-500/[0.06] px-4 py-3"
+                    className="flex flex-wrap items-center gap-3 rounded-(--radius-card) border border-red-500/25 bg-red-500/[0.06] px-4 py-3"
                   >
                     <AlertCircle
                       className="size-4 shrink-0 text-red-500"
@@ -174,7 +177,7 @@ export function ChatDemo() {
                         type="button"
                         onClick={retryLast}
                         disabled={isSending}
-                        className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-[0.8125rem] font-medium text-fg transition-colors hover:border-line-strong"
+                        className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-[0.8125rem] font-medium text-fg transition-colors hover:border-line-strong disabled:opacity-50"
                       >
                         <RefreshCw className="size-3.5" aria-hidden="true" />
                         Tentar novamente
