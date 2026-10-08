@@ -14,7 +14,7 @@ export function Footer() {
         <div className="max-w-sm">
           <a
             href={MAIN_SITE_URL}
-            className="inline-flex rounded-xl"
+            className="inline-flex rounded-lg"
             aria-label={`${BRAND.name} — site institucional`}
           >
             <Logo size="md" />

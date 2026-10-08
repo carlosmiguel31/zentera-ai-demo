@@ -10,9 +10,8 @@
  * Tokens fixos da marca Zentera Virtua (identicos nos dois temas)
  * ---------------------------------------------------------------------- */
 @theme {
-  --font-sans:
-    'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-display: 'Sora', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Manrope', ui-sans-serif, system-ui, sans-serif;
 
   --color-zen-900: #1d2053;
   --color-zen-850: #363271;
@@ -44,9 +43,6 @@
   --fg-muted: #4b5766;
   --fg-subtle: #74808f;
   --bubble-ai: #ffffff;
-  /* Placa clara onde os logos oficiais (JPEG com fundo claro) sao exibidos */
-  --brand-plate: #f7f7f7;
-  --brand-plate-border: rgb(48 69 122 / 0.1);
   --shadow-panel:
     0 1px 2px rgb(29 32 83 / 0.04), 0 24px 60px -32px rgb(29 32 83 / 0.35);
   --shadow-card: 0 1px 2px rgb(29 32 83 / 0.04);
@@ -66,8 +62,6 @@
   --fg-muted: #a9b2be;
   --fg-subtle: #727d8a;
   --bubble-ai: #0e131a;
-  --brand-plate: rgb(255 255 255 / 0.96);
-  --brand-plate-border: rgb(255 255 255 / 0.08);
   --shadow-panel:
     0 1px 0 rgb(255 255 255 / 0.04), 0 40px 90px -40px rgb(0 0 0 / 0.9);
   --shadow-card: 0 1px 0 rgb(255 255 255 / 0.03);
@@ -87,8 +81,6 @@
   --color-fg: var(--fg);
   --color-fg-muted: var(--fg-muted);
   --color-fg-subtle: var(--fg-subtle);
-  --color-brand-plate: var(--brand-plate);
-  --color-brand-plate-border: var(--brand-plate-border);
 }
 
 /* -------------------------------------------------------------------------
@@ -190,18 +182,6 @@
     #5fc3d8 78%,
     #86e2ee 100%
   );
-}
-
-/*
- * Placa clara para os logos oficiais.
- *
- * Os JPEGs tem fundo claro; em vez de tentar remover o fundo via CSS (o que
- * descaracterizaria a marca), o logo e sempre exibido sobre uma pequena
- * superficie clara, que no tema escuro aparece como um "cartao" discreto.
- */
-@utility zen-brand-plate {
-  background-color: var(--brand-plate);
-  border: 1px solid var(--brand-plate-border);
 }
 
 /* Botoes compartilhados com a landing institucional */

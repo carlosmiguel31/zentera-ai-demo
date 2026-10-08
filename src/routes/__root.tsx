@@ -53,7 +53,14 @@ export const Route = createRootRoute({
     ],
     links: [
       { rel: 'stylesheet', href: appCss },
-      // Favicons derivados do simbolo oficial (public/brand/zentera-virtua-symbol.jpeg)
+      // Icones oficiais: simbolo transparente da marca (ver public/)
+      { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
+      {
+        rel: 'icon',
+        href: '/favicon-16.png',
+        type: 'image/png',
+        sizes: '16x16',
+      },
       {
         rel: 'icon',
         href: '/favicon-32.png',
@@ -80,7 +87,7 @@ export const Route = createRootRoute({
       },
       {
         rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@500;600;700&display=swap',
+        href: 'https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap',
       },
     ],
   }),

@@ -46,7 +46,7 @@ export function Header() {
       <div className="mx-auto flex h-[4.25rem] max-w-[76rem] items-center gap-3 px-4 sm:gap-4 sm:px-6">
         <a
           href={NAV_ANCHORS.home}
-          className="flex shrink-0 items-center rounded-xl"
+          className="flex shrink-0 items-center rounded-lg py-1"
           aria-label="Zentera Virtua — início"
         >
           <Logo />

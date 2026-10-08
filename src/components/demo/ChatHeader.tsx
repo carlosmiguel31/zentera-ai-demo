@@ -30,7 +30,7 @@ export function ChatHeader({
         className="zen-gradient absolute inset-x-0 top-0 h-[2px] opacity-90"
       />
 
-      <BrandMark className="size-10" />
+      <BrandMark className="size-10 sm:size-11" />
 
       <div className="min-w-0 flex-1">
         <p className="truncate font-display text-[0.9375rem] font-semibold tracking-[-0.01em] text-fg">
