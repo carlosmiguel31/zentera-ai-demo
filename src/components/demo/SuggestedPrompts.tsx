@@ -10,9 +10,6 @@ import { ArrowUpRight } from 'lucide-react'
 export const SUGGESTIONS = [
   'Quero contratar internet',
   'Minha internet está lenta',
-  'Preciso da segunda via da fatura',
-  'Quero mudar meu plano',
-  'Quero cancelar',
 ] as const
 
 interface SuggestedPromptsProps {
