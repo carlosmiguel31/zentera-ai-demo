@@ -76,7 +76,7 @@ export function ChatComposer({
         )}
       >
         <label htmlFor="zentera-chat-input" className="sr-live">
-          Sua mensagem para a Zentera IA
+          Sua mensagem para a Zentera Virtua
         </label>
 
         <textarea

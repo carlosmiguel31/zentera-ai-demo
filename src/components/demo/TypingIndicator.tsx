@@ -4,7 +4,7 @@ import { BrandMark } from '#/components/zentera/Logo'
 import { BRAND } from '#/config/site'
 import { usePrefersReducedMotion } from '#/lib/utils'
 
-/** "Zentera IA está digitando" com tres pontos, no lugar da proxima bolha. */
+/** Indicador de digitação do agente, com três pontos, no lugar da próxima bolha. */
 export function TypingIndicator() {
   const reduced = usePrefersReducedMotion()
 

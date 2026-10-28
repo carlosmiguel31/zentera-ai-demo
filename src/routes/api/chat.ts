@@ -31,8 +31,9 @@ import type {
  * ambiente ou erro bruto do provedor. O visitante recebe apenas um `code`
  * estavel e uma frase em portugues.
  *
- * No sucesso o corpo e estritamente `{ reply }`: a metadata interna da
- * aplicacao Zentera para no servidor.
+ * No sucesso o corpo e estritamente `{ reply, operation? }`. `operation` ja
+ * chega aqui filtrado pela allowlist de `src/server/ai-client.ts`; a metadata
+ * interna da aplicacao Zentera para no servidor.
  */
 
 /** Textos exibidos ao visitante. Sao os unicos detalhes que saem do servidor. */
@@ -191,6 +192,8 @@ export const Route = createFileRoute('/api/chat')({
         }
 
         const success: ChatSuccessResponse = { reply: result.reply }
+        // Somente o snapshot allowlisted; ausente quando a Zentera nao informou.
+        if (result.operation) success.operation = result.operation
 
         const headers: Record<string, string> = { 'Cache-Control': 'no-store' }
         if (result.mode === 'mock') headers[DEMO_MODE_HEADER] = 'mock'

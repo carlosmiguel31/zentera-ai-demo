@@ -1,12 +1,14 @@
+import { sanitizeOperation } from '#/lib/operation'
 import { getServerConfig, isProduction } from '#/server/config'
 import { describeError, log, messageRef, sessionRef } from '#/server/logger'
+import type { OperationSnapshot } from '#/lib/types'
 
 /**
  * ADAPTER DA APLICACAO ZENTERA — unico ponto de contato com o backend de IA.
  *
  * Toda a integracao vive aqui. A rota `/api/chat` e o frontend nao conhecem o
  * contrato da Zentera: eles falam apenas em `{ sessionId, messageId, message }`
- * e recebem `{ reply }`.
+ * e recebem `{ reply, operation? }`.
  *
  * ENDPOINT (produção, mesma VPS, apenas loopback):
  *   POST http://127.0.0.1:3001/api/integrations/generic-webhook/incoming
@@ -55,10 +57,20 @@ import { describeError, log, messageRef, sessionRef } from '#/server/logger'
  * So ha sucesso quando HTTP 2xx **e** `ok === true` **e** `data.replyText` e
  * uma string nao vazia. Qualquer outra coisa vira erro controlado.
  *
- * Do corpo acima, unicamente `data.replyText` atravessa para o navegador.
- * `conversationState`, `detectedIntent`, `shouldHandoffToHuman`, `provider`,
- * `fallbackUsed`, `toolCalls`, `policies`, `memory`, `observability` e o
- * restante da metadata interna ficam no servidor.
+ * Do corpo acima, atravessam para o navegador SOMENTE:
+ *
+ *   data.replyText             -> reply
+ *   data.conversationState     -> operation.state
+ *   data.detectedIntent        -> operation.intent
+ *   data.shouldHandoffToHuman  -> operation.handoff
+ *   data.demoOperation.summary / context / actions / handoffReason /
+ *     department / nextAction  -> operation.* (opcional, futuro)
+ *
+ * Tudo passa pela allowlist de `extractOperation` + `sanitizeOperation`.
+ * `data.metadata` NUNCA e lido. `provider`, `fallbackUsed`, `toolCalls`,
+ * `policies`, `memory`, `observability` e o restante da metadata interna
+ * ficam no servidor. Os campos operacionais sao opcionais: sem eles o chat
+ * continua funcionando apenas com `reply`.
  */
 
 export const AI_PLATFORM = 'generic'
@@ -72,7 +84,13 @@ export type AiFailureReason =
   | 'invalid_response'
 
 export type AiResult =
-  | { ok: true; reply: string; mode: 'live' | 'mock' }
+  | {
+      ok: true
+      reply: string
+      mode: 'live' | 'mock'
+      /** Ja filtrado pela allowlist. Ausente quando nada foi informado. */
+      operation?: OperationSnapshot
+    }
   | { ok: false; reason: AiFailureReason }
 
 const MAX_REPLY_LENGTH = 8000
@@ -86,7 +104,42 @@ type RejectReason =
   | 'empty_reply_text'
 
 type Extraction =
-  { ok: true; replyText: string } | { ok: false; why: RejectReason }
+  | { ok: true; replyText: string; operation: OperationSnapshot | undefined }
+  | { ok: false; why: RejectReason }
+
+/**
+ * ALLOWLIST OPERACIONAL — o que da resposta Zentera pode chegar ao navegador.
+ *
+ * Le chaves NOMEADAS, uma a uma. `data.metadata` nunca e lido, e nenhum
+ * objeto da Zentera e repassado por referencia ou espalhado com `...`. O
+ * resultado ainda passa por `sanitizeOperation`, que valida tipo, tamanho e
+ * quantidade e devolve um objeto novo.
+ *
+ * Contrato atual: `conversationState`, `detectedIntent`,
+ * `shouldHandoffToHuman`. Futuro (opcional): `demoOperation`, objeto voltado
+ * explicitamente a demonstracao, do qual so seis campos conhecidos sao lidos.
+ */
+export function extractOperation(
+  data: Record<string, unknown>,
+): OperationSnapshot | undefined {
+  const rawDemo = data.demoOperation
+  const demo: Record<string, unknown> =
+    typeof rawDemo === 'object' && rawDemo !== null && !Array.isArray(rawDemo)
+      ? (rawDemo as Record<string, unknown>)
+      : {}
+
+  return sanitizeOperation({
+    state: data.conversationState,
+    intent: data.detectedIntent,
+    handoff: data.shouldHandoffToHuman,
+    summary: demo.summary,
+    context: demo.context,
+    actions: demo.actions,
+    handoffReason: demo.handoffReason,
+    department: demo.department,
+    nextAction: demo.nextAction,
+  })
+}
 
 /**
  * Extrai `data.replyText` validando cada degrau do contrato.
@@ -110,7 +163,8 @@ export function extractReplyText(payload: unknown): Extraction {
     return { ok: false, why: 'missing_data' }
   }
 
-  const replyText = (data as Record<string, unknown>).replyText
+  const record = data as Record<string, unknown>
+  const replyText = record.replyText
   if (typeof replyText !== 'string') {
     return { ok: false, why: 'missing_reply_text' }
   }
@@ -120,19 +174,24 @@ export function extractReplyText(payload: unknown): Extraction {
     return { ok: false, why: 'empty_reply_text' }
   }
 
-  return { ok: true, replyText: trimmed.slice(0, MAX_REPLY_LENGTH) }
+  return {
+    ok: true,
+    replyText: trimmed.slice(0, MAX_REPLY_LENGTH),
+    // Opcional: a ausencia de dados operacionais nunca invalida a resposta.
+    operation: extractOperation(record),
+  }
 }
 
 /**
  * Resposta simulada, usada SOMENTE fora de producao e SOMENTE quando
- * `AI_WEBHOOK_URL` nao esta configurado. O texto se identifica como simulacao
- * para que ninguem confunda com a IA real.
+ * `AI_WEBHOOK_URL` nao esta configurado. A resposta deixa claro que a
+ * integracao local nao esta ativa, sem se apresentar como resposta da IA real.
  */
 function mockReply(message: string): string {
   const preview = message.length > 60 ? `${message.slice(0, 60)}…` : message
 
   return [
-    '**Modo simulado (desenvolvimento).** Nenhuma IA real respondeu a esta mensagem.',
+    '**Integração local não configurada.** Nenhuma IA real respondeu a esta mensagem.',
     '',
     `Recebi: "${preview}"`,
     '',
@@ -166,6 +225,7 @@ export async function sendToAi({
     }
 
     log('warn', { event: 'ai_mock_reply', ...refs })
+    // Sem `operation`: o mock nao inventa dados operacionais.
     return { ok: true, reply: mockReply(message), mode: 'mock' }
   }
 
@@ -247,9 +307,16 @@ export async function sendToAi({
       status: response.status,
       durationMs,
       length: extracted.replyText.length,
+      // Apenas SE veio leitura operacional; nunca o conteudo dela.
+      code: extracted.operation ? 'with_operation' : 'reply_only',
     })
 
-    return { ok: true, reply: extracted.replyText, mode: 'live' }
+    return {
+      ok: true,
+      reply: extracted.replyText,
+      mode: 'live',
+      operation: extracted.operation,
+    }
   } catch (error) {
     const durationMs = Date.now() - startedAt
     const aborted = error instanceof Error && error.name === 'AbortError'

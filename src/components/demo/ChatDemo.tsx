@@ -1,17 +1,25 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertCircle, RefreshCw } from 'lucide-react'
 
 import { ChatComposer } from '#/components/demo/ChatComposer'
 import type { ComposerHandle } from '#/components/demo/ChatComposer'
 import { ChatHeader } from '#/components/demo/ChatHeader'
 import { ChatMessageBubble } from '#/components/demo/ChatMessage'
+import type { ChatView } from '#/components/demo/ChatViewToggle'
+import {
+  CompanyConversationView,
+  CompanyMirrorBar,
+} from '#/components/demo/CompanyConversationView'
+import { ConversationSummary } from '#/components/demo/ConversationSummary'
 import { DemoLimitNotice } from '#/components/demo/DemoLimitNotice'
+import { OperationOverview } from '#/components/demo/OperationPanel'
 import { SuggestedPrompts } from '#/components/demo/SuggestedPrompts'
 import { TypingIndicator } from '#/components/demo/TypingIndicator'
 import { BRAND, PRIVACY_URL } from '#/config/site'
 import { track } from '#/lib/analytics'
 import { onDemoCommand } from '#/lib/demo-bus'
-import { usePrefersReducedMotion } from '#/lib/utils'
+import { buildOperationTimeline } from '#/lib/operation-format'
+import { cn, usePrefersReducedMotion } from '#/lib/utils'
 import { useChatDemo } from '#/hooks/useChatDemo'
 
 export function ChatDemo() {
@@ -22,7 +30,6 @@ export function ChatDemo() {
     error,
     remaining,
     limitReached,
-    mode,
     hasConversation,
     setDraft,
     send,
@@ -33,10 +40,26 @@ export function ChatDemo() {
   const reduced = usePrefersReducedMotion()
   const [confirmOpen, setConfirmOpen] = useState(false)
 
+  /**
+   * Perspectiva exibida. E apenas apresentacao: as duas visoes leem o MESMO
+   * estado de `useChatDemo` (mesma sessao, mesmas mensagens, mesmo historico).
+   * Trocar de visao nao dispara requisicao.
+   */
+  const [view, setView] = useState<ChatView>('client')
+  const [summaryOpen, setSummaryOpen] = useState(false)
+
   const viewportRef = useRef<HTMLDivElement>(null)
   const composerRef = useRef<ComposerHandle>(null)
   const hasConversationRef = useRef(hasConversation)
   hasConversationRef.current = hasConversation
+  const viewRef = useRef(view)
+  viewRef.current = view
+  /** Foco pendente no composer, aplicado assim que a Visao do cliente montar. */
+  const focusComposerRef = useRef(false)
+
+  // Leitura operacional derivada das proprias mensagens: nada e buscado de
+  // novo, entao alternar entre as visoes e instantaneo.
+  const timeline = useMemo(() => buildOperationTimeline(messages), [messages])
 
   /**
    * Rolagem automatica.
@@ -62,14 +85,45 @@ export function ChatDemo() {
     scrollToLatest()
   }, [messages, isSending, error, scrollToLatest])
 
+  // Ao trocar de visao, mostra o ponto atual da conversa, sem animacao.
+  useEffect(() => {
+    const viewport = viewportRef.current
+    if (!viewport || !hasConversationRef.current) return
+    viewport.scrollTop = viewport.scrollHeight
+  }, [view])
+
+  // O composer so existe na Visao do cliente: o foco pedido espera ele montar.
+  useEffect(() => {
+    if (view !== 'client' || !focusComposerRef.current) return
+    focusComposerRef.current = false
+    composerRef.current?.focus()
+  }, [view])
+
+  /** Volta para a Visao do cliente e leva o foco ao campo de mensagem. */
+  const showClientView = useCallback(() => {
+    if (viewRef.current === 'client') {
+      composerRef.current?.focus()
+      return
+    }
+    focusComposerRef.current = true
+    setView('client')
+  }, [])
+
+  /** Nova conversa: limpa tudo (inclusive snapshots) e volta ao cliente. */
+  const resetConversation = useCallback(() => {
+    if (!startNewConversation()) return
+    setView('client')
+    setSummaryOpen(false)
+  }, [startNewConversation])
+
   /** Reinicia direto quando nao ha nada a perder; senao confirma antes. */
   const requestNewConversation = useCallback(() => {
     if (!hasConversationRef.current) {
-      startNewConversation()
+      resetConversation()
       return
     }
     setConfirmOpen(true)
-  }, [startNewConversation])
+  }, [resetConversation])
 
   // Comandos vindos dos cards de capacidades e do CTA final.
   useEffect(
@@ -77,12 +131,12 @@ export function ChatDemo() {
       onDemoCommand((command) => {
         if (command.type === 'prefill') {
           setDraft(command.text)
-          composerRef.current?.focus()
+          showClientView()
         } else {
           requestNewConversation()
         }
       }),
-    [setDraft, requestNewConversation],
+    [setDraft, requestNewConversation, showClientView],
   )
 
   const lastAssistant = [...messages]
@@ -112,21 +166,35 @@ export function ChatDemo() {
           <div className="relative flex h-[calc(100svh-13rem)] max-h-[720px] min-h-[500px] flex-col overflow-hidden rounded-(--radius-panel) border border-line bg-surface shadow-[var(--shadow-panel)] sm:h-[min(72vh,720px)]">
             <ChatHeader
               isSending={isSending}
-              mode={mode}
+              view={view}
+              onViewChange={setView}
               onRequestNew={requestNewConversation}
               confirmOpen={confirmOpen}
               onConfirmOpenChange={setConfirmOpen}
               onConfirmNew={() => {
                 setConfirmOpen(false)
-                startNewConversation()
+                resetConversation()
               }}
             />
+
+            {view === 'company' && hasConversation && (
+              <OperationOverview operation={timeline.current} />
+            )}
 
             <div
               ref={viewportRef}
               className="zen-scroll flex-1 overflow-x-hidden overflow-y-auto overscroll-contain bg-[radial-gradient(80%_60%_at_50%_0%,rgb(70_156_181/0.05),transparent_70%)] px-3 py-5 sm:px-5 sm:py-6"
             >
-              <div className="mx-auto flex max-w-[44rem] flex-col gap-4">
+              {/*
+                Visao do cliente. Continua montada quando oculta: voltar a ela
+                e instantaneo e as bolhas nao reanimam.
+              */}
+              <div
+                className={cn(
+                  'mx-auto flex max-w-[44rem] flex-col gap-4',
+                  view !== 'client' && 'hidden',
+                )}
+              >
                 {messages.length === 0 && (
                   <div className="flex flex-col gap-5 pt-2">
                     <div className="max-w-xl space-y-2.5">
@@ -188,16 +256,37 @@ export function ChatDemo() {
 
                 {limitReached && <DemoLimitNotice />}
               </div>
+
+              {/* Visao da empresa: a mesma conversa, somente leitura. */}
+              <div
+                className={cn(
+                  'mx-auto max-w-[44rem]',
+                  view !== 'company' && 'hidden',
+                )}
+              >
+                <CompanyConversationView
+                  entries={timeline.entries}
+                  isSending={isSending}
+                  onShowClientView={showClientView}
+                />
+              </div>
             </div>
 
-            <ChatComposer
-              ref={composerRef}
-              value={draft}
-              onChange={setDraft}
-              onSubmit={() => send(draft)}
-              isSending={isSending}
-              disabled={limitReached}
-            />
+            {view === 'client' ? (
+              <ChatComposer
+                ref={composerRef}
+                value={draft}
+                onChange={setDraft}
+                onSubmit={() => send(draft)}
+                isSending={isSending}
+                disabled={limitReached}
+              />
+            ) : (
+              <CompanyMirrorBar
+                onOpenSummary={() => setSummaryOpen(true)}
+                canSummarize={hasConversation}
+              />
+            )}
           </div>
         </div>
 
@@ -210,6 +299,13 @@ export function ChatDemo() {
             ? `${BRAND.agentName} está digitando`
             : (lastAssistant?.content ?? '')}
         </div>
+
+        <ConversationSummary
+          open={summaryOpen}
+          onOpenChange={setSummaryOpen}
+          messages={messages}
+          operation={timeline.current}
+        />
 
         <p className="mt-4 text-center text-[0.75rem] leading-relaxed text-fg-subtle">
           Ambiente demonstrativo. Não envie senhas, dados bancários ou

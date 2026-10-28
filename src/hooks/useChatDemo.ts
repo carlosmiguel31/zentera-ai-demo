@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { DEMO } from '#/config/site'
 import { track } from '#/lib/analytics'
+import { sanitizeOperation } from '#/lib/operation'
 import {
   clearHistory,
   createMessageId,
@@ -69,7 +70,8 @@ export interface ChatDemoController {
   setDraft: (value: string) => void
   send: (text: string, origin?: 'composer' | 'suggestion') => void
   retryLast: () => void
-  startNewConversation: () => void
+  /** Devolve `false` (sem fazer nada) quando ha uma requisicao em andamento. */
+  startNewConversation: () => boolean
   dismissError: () => void
 }
 
@@ -160,15 +162,19 @@ export function useChatDemo(): ChatDemoController {
       )
       pendingRef.current = null
 
-      setMessages((current) => [
-        ...current,
-        {
-          id: createMessageId(),
-          role: 'assistant',
-          content: payload.reply,
-          createdAt: Date.now(),
-        },
-      ])
+      const reply: ChatMessage = {
+        id: createMessageId(),
+        role: 'assistant',
+        content: payload.reply,
+        createdAt: Date.now(),
+      }
+
+      // O servidor ja aplicou a allowlist. Reaplicar aqui garante que nada
+      // fora de `OperationSnapshot` entra no estado da tela ou no storage.
+      const operation = sanitizeOperation(payload.operation)
+      if (operation) reply.operation = operation
+
+      setMessages((current) => [...current, reply])
     } catch (cause) {
       const aborted = cause instanceof Error && cause.name === 'AbortError'
       setError(aborted ? TIMEOUT_ERROR : NETWORK_ERROR)
@@ -241,7 +247,7 @@ export function useChatDemo(): ChatDemoController {
   }, [deliver])
 
   const startNewConversation = useCallback(() => {
-    if (inFlightRef.current) return
+    if (inFlightRef.current) return false
 
     if (sessionRef.current !== '') clearHistory(sessionRef.current)
 
@@ -259,6 +265,7 @@ export function useChatDemo(): ChatDemoController {
     startedRef.current = false
 
     track('new_conversation')
+    return true
   }, [])
 
   const dismissError = useCallback(() => setError(null), [])

@@ -36,7 +36,8 @@ export const TERMS_URL = `${MAIN_SITE_URL}/termos-de-uso`
 
 export const BRAND = {
   name: 'Zentera Virtua',
-  agentName: 'Zentera IA',
+  /** Nome exibido do agente (cabecalho, mensagens, resumo, leitor de tela). */
+  agentName: 'Zentera Virtua',
   tagline: 'Desenvolvido para um atendimento ágil, autônomo e inteligente.',
 } as const
 

@@ -57,7 +57,7 @@ interface BrandMarkProps {
   className?: string
   /**
    * `true` (padrao) quando o simbolo e puramente decorativo — por exemplo, ao
-   * lado do texto "Zentera IA". Use `false` para dar um `alt` real.
+   * lado do nome do agente. Use `false` para dar um `alt` real.
    */
   decorative?: boolean
 }

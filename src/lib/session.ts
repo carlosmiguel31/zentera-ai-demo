@@ -1,4 +1,5 @@
 import { DEMO, SESSION_STORAGE_KEYS } from '#/config/site'
+import { sanitizeOperation } from '#/lib/operation'
 import type { ChatMessage } from '#/lib/types'
 
 /**
@@ -98,6 +99,29 @@ function isChatMessage(value: unknown): value is ChatMessage {
   )
 }
 
+/**
+ * Reconstroi a mensagem apenas com campos conhecidos.
+ *
+ * `operation` e opcional: historicos gravados antes desta versao continuam
+ * validos sem ele. Quando existe, passa de novo pela allowlist, ja que o
+ * `sessionStorage` pode ter sido editado a mao.
+ */
+function normalizeStoredMessage(message: ChatMessage): ChatMessage {
+  const normalized: ChatMessage = {
+    id: message.id,
+    role: message.role,
+    content: message.content,
+    createdAt: message.createdAt,
+  }
+
+  if (message.role === 'assistant') {
+    const operation = sanitizeOperation(message.operation)
+    if (operation) normalized.operation = operation
+  }
+
+  return normalized
+}
+
 interface StoredHistory {
   messages: Array<ChatMessage>
   userMessageCount: number
@@ -120,7 +144,9 @@ export function loadHistory(sessionId: string): StoredHistory {
 
     if (!Array.isArray(candidates)) return empty
 
-    const messages = candidates.filter(isChatMessage)
+    const messages = candidates
+      .filter(isChatMessage)
+      .map(normalizeStoredMessage)
 
     const userMessageCount = messages.filter((m) => m.role === 'user').length
 
